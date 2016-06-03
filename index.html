@@ -5,8 +5,10 @@
     <meta charset='utf-8'>
     <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
             async class='remove'></script>
+    <script src='reverse-index.js' class='remove'></script>
     <script class='remove'>
       var respecConfig = {
+          preProcess: [rev_index],
           specStatus: "ED",
           shortName:  "dpub-pwp-ucr",
           editors: [
@@ -100,6 +102,9 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
       Parsing through one 2000-page HTML document is difficult and resource-
       intensive. Parsing through a package of  20 10-page HTML documents is
       less resource-intensive.</p>
+
+     <p>Requirement (Ivan's experimentation!!!): <a data-set-anchor>Many Resources</a></p>
+
   </section>
 
   <section>
@@ -111,6 +116,8 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
       frequently. Therefore, it is necessary for publications to be accessible on
       current as well as older browsers.</p>
     <p>Bob wants read a PWP on an airplane.</p>
+
+    <p>Requirement (Ivan's experimentation!!!): <a data-set-anchor>Online/Offline</a>
   </section>
 
   <section>
@@ -119,6 +126,7 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
       unpacked. Anna uses some cloud storage system such as DropBox to publish
       her PWP online. Her friend Bob is able to read Anna's PWP online and
       offline, either packed or unpacked, as Bob sees fit.</p>
+      <p>Requirements (Ivan's experimentation!!!): <a data-set-anchor>Online/Offline</a>, <a data-set-anchor>Packed/Unpacked</a>
   </section>
 
   <section>
@@ -137,6 +145,7 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
   <h2>Platform Independence</h2>
   <p>Publisher ACME creates a publication that is consumable across a variety
     of reader platforms, whether online or offline.</p>
+  <p>Requirement (Ivan's experimentation!!!): <a data-set-anchor>Online/Offline</a>
 </section>
 </section>
 
@@ -209,6 +218,7 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
    <p>PWPRead-soft synchronizes with Bob's PWPMark profile, and can
      show Bob's bookmarks when he continues reading [file/packed]</p>
 </p>
+<p>Requirements (Ivan's experimentation!!!): <a data-set-anchor>Packed/Unpacked</a>
 </section>
 
 <section>
@@ -643,8 +653,49 @@ Requirement(s)
   <p>Package needs to support Time based media and Text such as audio
     synchronized with text, Video synchronized with Text, sign language sync
     with text.</p>
+</section>
 
+<section>
+    <h2>Ivan's experimentation!!!</h2>
 
+    <section>
+        <h2>Summaries</h2>
+        <dl>
+            <dt><dfn>Many Resources</dfn></dt>
+            <dd>We need many resources within a PWP
+                <p>Referenced in: <span data-ref-anchor>Many Resources</span></p>
+            </dd>
+
+            <dt><dfn>Online/Offline</dfn></dt>
+            <dd>The same PWP should be accessible offline and online
+                <p>Referenced in: <span data-ref-anchor>Online/Offline</span></p>
+            </dd>
+
+            <dt><dfn>Packed/Unpacked</dfn></dt>
+            <dd>Publishers love the possibility to pack everything in one file:-)
+                <p>Referenced in: <span data-ref-anchor>Packed/Unpacked</span></p>
+            </dd>
+        </dl>
+    </section>
+
+    <section>
+        <h2>Reference table</h2>
+
+        <table style="width:100%">
+            <thead>
+                <tr>
+                    <th>
+                        Requirement
+                    </th>
+                    <th>
+                        Use case
+                    </th>
+                </tr>
+            </thead>
+            <tbody data-list-anchors>
+            </tbody>
+        </table>
+    </section>
 </section>
   </body>
 </html>
