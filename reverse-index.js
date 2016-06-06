@@ -18,14 +18,25 @@ function rev_index() {
 
     // 1. Collect the references from <a> elements that have a specific attribute set
     $("a[data-set-anchor]").each(function(i) {
-        var sect_id = undefined;
-        // Looking for the closest parent <section> and get or set the @id value
+        var ref_id = undefined;
+        // Looking for the closest parent <section> and its header, and get or set the @id value
         $(this).parents("section").each(function(j) {
             if(j === 0) {
-                sect_id = $(this).attr("id");
-                if( sect_id === undefined ) {
-                    sect_id = sect_start + index++;
-                    $(this).attr("id", sect_id);
+                $section = $(this)
+                ref_id = $section.attr("id");
+                if( ref_id === undefined ) {
+                    // must find the header for that section
+                    $section.children(":header").each(function(k){
+                        if( k === 0 ) {
+                            // This must be the header of the section.
+                            // If there is no id on the header, the respec approach is simulated
+                            // otherwise the header is reused by extending it by "s-"
+                            ref = $(this).attr("id")
+                            if( ref_id === undefined ) {
+                                ref_id = $(this).makeID("h");
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -36,11 +47,13 @@ function rev_index() {
         var ref_text = $(this).text()        //
         // Filling the value of the reference structure
         if( refs[ref_text] === undefined ) {
-            refs[ref_text] = [sect_id]
+            refs[ref_text] = [ref_id]
         } else {
-            refs[ref_text].push(sect_id)
+            refs[ref_text].push(ref_id)
         }
     });
+
+    // alert(JSON.stringify(refs));
 
     $("[data-ref-anchor]").each(function(i) {
         // Get the content of the element; that should be the key to the references
