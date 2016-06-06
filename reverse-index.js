@@ -9,10 +9,6 @@ function rev_index() {
         )
     };
 
-    // index to generate new @id values for sections (if needed)
-    var index = 0;
-    // startup random text for the generated @id values
-    var sect_start = "Id_" + Math.floor(Math.random()*10000000) + "_"
     // structure to store the references. For each reference an array of @id values are stored
     var refs = {}
 
