@@ -1,9 +1,8 @@
 function rev_index() {
-
     var indexes_to_references = function(element, ref_list) {
         element.html(
-            $.map(ref_list, function(ref) {
-                return "<a href='#" + ref + "'></a>"
+            $.map(ref_list, function(oneref) {
+                return "<a href='#" + oneref.ref + "'></a>"
             })
             .join(", ")
         )
@@ -39,28 +38,34 @@ function rev_index() {
 
         // Get the content of the <a> element, this is the reference
         // Relying the respec tool of <a>bla</a> - <dfn>bla</bla>
-        // TODO: consider the data-lt alternative
-        var ref_text = $(this).text()        //
-        // Filling the value of the reference structure
-        if( refs[ref_text] === undefined ) {
-            refs[ref_text] = [ref_id]
+        // of <a data-lt='key'>bla</a> - <dfn>key</dfn>
+        // Although... for most of these use cases the data-lt may not be the good choice, it is a bit confusing what the user also
+        // finds if the 'table' feature below is also used (the table will reproduce what is found here)
+        var struct = {
+            ref:            ref_id,
+            anchor_text:    $(this).text(),
+            data_lt:        $(this).data("lt")
+        }
+        var key = struct.data_lt || struct.anchor_text;
+        if( refs[key] === undefined ) {
+            refs[key] = [struct]
         } else {
-            refs[ref_text].push(ref_id)
+            refs[key].push(struct)
         }
     });
 
-    // alert(JSON.stringify(refs));
+    // alert(JSON.stringify(refs, null, 2));
 
     $("[data-ref-anchor]").each(function(i) {
         // Get the content of the element; that should be the key to the references
-        var ref_text = $(this).text();
+        var key = $(this).data("lt") || $(this).text();
         // See if the reference is really set
-        if( refs[ref_text] !== undefined ) {
+        if( refs[key] !== undefined ) {
             // Remove current content:
             $(this).text("");
             // Generate references for later respec manipulation, and turn this into a series
             // of HTML elements to be displayed.
-            indexes_to_references($(this), refs[ref_text]);
+            indexes_to_references($(this), refs[key]);
         }
     });
 
@@ -71,17 +76,21 @@ function rev_index() {
         // 1. cell with the key, referring back to the definition of the key
         // 2. cell with the references to the use cases where it was used
         Object.keys(refs).sort().forEach(function(key, index, array){
-            // alert(key);
+            struct = refs[key]
+            // alert(JSON.stringify(struct, null, 4));
             tr = $("<tr></tr>");
             tbody.append(tr);
 
             td1 = $("<td></td>");
             tr.append(td1);
-            td1.html("<a>" + key + "</a>");
-
+            if( struct[0].data_lt === undefined ) {
+                td1.html("<a>" + key + "</a>");
+            } else {
+                td1.html("<a data-lt='" + struct[0].data_lt + "'>" + struct[0].anchor_text + "</a>")
+            }
             td2 = $("<td></td>");
             tr.append(td2);
-            indexes_to_references(td2, refs[key]);
+            indexes_to_references(td2, struct);
         });
     });
 }
