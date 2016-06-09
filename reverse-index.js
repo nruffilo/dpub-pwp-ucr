@@ -1,18 +1,43 @@
+/****************************************************************
+* Function to be executed by respec before any respec processing
+****************************************************************/
 function rev_index() {
-    var indexes_to_references = function(element, ref_list) {
-        element.html(
-            $.map(ref_list, function(oneref) {
-                return "<a href='#" + oneref.ref + "'></a>"
-            })
-            .join(", ")
-        )
+
+    /****************************************************************************************
+    * 1. Get an array of identification structures for all the <dfn> elements
+    *****************************************************************************************/
+    var lt_to_array = function(lt) {
+        return lt === undefined ? [] : lt.split("|")
     };
+    var defs = $.map($("dfn"), function(el) {
+        return {
+            text   : el.textContent,
+            data_lt: lt_to_array(el.dataset.lt)
+        }
+    });
 
-    // structure to store the references. For each reference an array of @id values are stored
+    /*****
+    * Helper function: locate the dfn element that is referred to either via a text or a data-lt attribute
+    *****/
+    var return_def = function(element, structures) {
+        for( var i = 0; i < structures.length; i++ ) {
+            var struct = structures[i];
+            var text    = element.text();
+            var data_lt = element.data("lt");
+            if( (data_lt !== undefined && $.inArray(data_lt, struct.data_lt) >= 0) || text === struct.text ) {
+                return i;
+            }
+        }
+        return undefined
+    }
+    // alert(JSON.stringify(defs, null, 2));
+
+    /****************************************************************************************
+    * 2. Collect the references from <a> elements that have a specific attribute set
+    *****************************************************************************************/
     var refs = {}
-
-    // 1. Collect the references from <a> elements that have a specific attribute set
     $("a[data-set-anchor]").each(function(i) {
+        // 2.1. Find/set the @id to be used to link 'back' to this section. Stored in ref_id
         var ref_id = undefined;
         // Looking for the closest parent <section> and its header, and get or set the @id value
         $(this).parents("section").each(function(j) {
@@ -36,61 +61,86 @@ function rev_index() {
             }
         });
 
-        // Get the content of the <a> element, this is the reference
-        // Relying the respec tool of <a>bla</a> - <dfn>bla</bla>
-        // of <a data-lt='key'>bla</a> - <dfn>key</dfn>
-        // Although... for most of these use cases the data-lt may not be the good choice, it is a bit confusing what the user also
-        // finds if the 'table' feature below is also used (the table will reproduce what is found here)
-        var struct = {
-            ref:            ref_id,
-            anchor_text:    $(this).text(),
-            data_lt:        $(this).data("lt")
-        }
-        var key = struct.data_lt || struct.anchor_text;
-        if( refs[key] === undefined ) {
-            refs[key] = [struct]
+        // 2.2. Identify the <dfn> element that this <a> links to. If it is undefined, abort the cycle...
+        var def_index = return_def($(this), defs);
+        if( def_index === undefined ) return;
+
+        // 2.3. The refs structure uses the def_index as a key, and the value is an array of @id values.
+        if( refs[def_index] === undefined ) {
+            refs[def_index] = [ref_id]
         } else {
-            refs[key].push(struct)
+            refs[def_index].push(ref_id)
         }
     });
 
-    // alert(JSON.stringify(refs, null, 2));
+    alert(JSON.stringify(refs, null, 2));
 
-    $("[data-ref-anchor]").each(function(i) {
-        // Get the content of the element; that should be the key to the references
-        var key = $(this).data("lt") || $(this).text();
-        // See if the reference is really set
-        if( refs[key] !== undefined ) {
-            // Remove current content:
-            $(this).text("");
-            // Generate references for later respec manipulation, and turn this into a series
-            // of HTML elements to be displayed.
-            indexes_to_references($(this), refs[key]);
-        }
+    /****************************************************************************************
+    * 3. Handle the direct back references to a sections, using the same reference as for a <dfn>;
+    * replace the content with a list of <a> elements without any content (using the respec trick to
+    * pick up section numbering and section title)
+    *****************************************************************************************/
+     $("[data-ref-anchor]").each(function(i) {
+        // 3.1. Get the index for the relevant <dfn> in the structure
+        var def_index = return_def($(this), defs);
+        if( def_index === undefined ) return;
+
+        // 3.2. The index should get the right value in the refs structure, revealing an array of section @indexes_to_references
+        var ids = refs[def_index];
+        if( ids === undefined ) return;
+
+        // 3.3. Replace the content of the element with back references
+        $(this).text("");
+        $(this).html(
+            $.map(ids, function(oneref) {
+                return "<a href='#" + oneref + "'></a>"
+            })
+            .join(", ")
+        );
     });
 
-    // Generate tables
+    /****************************************************************************************
+    * 4. Generate table body
+    * replace the content with a list of <a> elements without any content (using the respec trick to
+    * pick up section numbering and section title)
+    *****************************************************************************************/
     $("tbody[data-list-anchors]").each(function(i) {
         var tbody = $(this);
-        // Sort the keys and, for each of that, generate a table row with
-        // 1. cell with the key, referring back to the definition of the key
-        // 2. cell with the references to the use cases where it was used
-        Object.keys(refs).sort().forEach(function(key, index, array){
-            struct = refs[key]
-            // alert(JSON.stringify(struct, null, 4));
-            tr = $("<tr></tr>");
+
+        // 4.1 sort the keys into the list of <defs> to get the requirements listed in alphabetical order
+        var sorted_keys = Object.keys(refs).sort(function(a,b) {
+            if( defs[a].text < defs[b].text ) {
+                return -1;
+            } else if (defs[a].text > defs[b].text ) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // 4.2 display the list of references for each requirement
+        sorted_keys.forEach( function(index) {
+            req = defs[index].text;
+            ids = refs[index]
+
+            // build the table row
+            tr = $("<tr class='anchor-list-row'></tr>");
             tbody.append(tr);
 
-            td1 = $("<td></td>");
+            // Left cell: reference to the requirement
+            td1 = $("<td class='anchor-list-row-req'></td>");
             tr.append(td1);
-            if( struct[0].data_lt === undefined ) {
-                td1.html("<a>" + key + "</a>");
-            } else {
-                td1.html("<a data-lt='" + struct[0].data_lt + "'>" + struct[0].anchor_text + "</a>")
-            }
-            td2 = $("<td></td>");
+            td1.html("<a>" + req + "</a>");
+
+            // Right cell: list of sections
+            td2 = $("<td class='anchor-list-row-sections'></td>");
             tr.append(td2);
-            indexes_to_references(td2, struct);
+            td2.html(
+                $.map(ids, function(oneref) {
+                    return "<a href='#" + oneref + "'></a>"
+                })
+                .join(", ")
+            );
         });
     });
 }
