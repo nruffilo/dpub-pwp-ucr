@@ -1,7 +1,73 @@
-/****************************************************************
-* Function to be executed by respec before any respec processing
-****************************************************************/
-function rev_index() {
+/*******************************************************************************************
+Facilitating back references and listings of definitions in respec.
+===================================================================
+
+Built on top of the respec idiom of using <a data-lt="...">...</a> paired with <dfn> elements
+(see https://www.w3.org/respec/guide.html#definitions-and-linking) insofar as
+one can generate, for a specific definition, the list of section references where that <dfn> is used.
+Useful, for example, in UCR specifications, where the use cases refer to a specific requirement, and it is
+important to have a 'back' link from each requirement (using a <dfn>) to the sections where
+the requirement is mentioned.
+
+The function is to be used _before_ any respec processing: it indeed adds (if necessary) some @id attributes and
+generates elements that make use of respec functionalities.
+
+Usage in the HTML source
+========================
+
+1. When using a <a data-lt="...">...</a> in the code (where the usage of @data-lt is optional), adding the
+data-set-anchor attribute to <a> (the value of the attribute is not important) means the section @id will be
+stored for later reference. More precisely, the script locates the first header of the closest enclosing <section>
+element. The script uses the @id of the <section> (if available) or that of the header
+(if there is no @id, it is added to the header). This @id is used for back linking.
+
+2. Any element (typically a <span>, but can be anything else) of the form:
+
+   <span data-ref-anchor data-lt="...">...</a>
+
+(@data-lt is optional) that identifies a definition exactly the same way as an <a> would do will be transformed.
+The content of the element is exchanged against a (comma separated) list of <a> elements that refer to the
+@id-s where the definition is referred to. Note that what is generated is elements of the form
+
+   <a id="#id"></a>
+
+ making use of the section linking facility of respec (ie, the title of the section, as well as its numbering
+is automatically reused)
+
+3. It is also possible to generate a table of references. Any table body of the form:
+
+    <tbody data-list-anchors></tbody>
+
+is transformed by adding a series of table rows, each consisting of two table cells. The first (leftmost) cells
+contains a reference to a definition, the second cell contains a comma separate list of section references (similarly
+to the format used above). To facilitate table styling, the classes anchor-list-row, anchor-list-row-dfn,
+and anchor-list-row-sections classes are added to the row, the left and right cells, respectively.
+
+Configuring respec
+==================
+
+The script must be linked into the code as any other js file:
+
+    <script src='dfn_index.js' class='remove'></script>
+
+Furthermore, the function 'dfn_index' must be added to the respec configuration for preprocessing, ie,
+
+    preProcess: [dfn_index],
+
+
+
+Author: Ivan Herman, W3C, ivan@w3.org
+Version: 0.8
+Date: 2016-06-09
+
+*******************************************************************************************/
+
+
+
+/**********************************************************************
+* Function to be executed by respec before any other respec processing
+**********************************************************************/
+function dfn_index() {
 
     /****************************************************************************************
     * 1. Get an array of identification structures for all the <dfn> elements
@@ -73,7 +139,7 @@ function rev_index() {
         }
     });
 
-    alert(JSON.stringify(refs, null, 2));
+    // alert(JSON.stringify(refs, null, 2));
 
     /****************************************************************************************
     * 3. Handle the direct back references to a sections, using the same reference as for a <dfn>;
@@ -128,7 +194,7 @@ function rev_index() {
             tbody.append(tr);
 
             // Left cell: reference to the requirement
-            td1 = $("<td class='anchor-list-row-req'></td>");
+            td1 = $("<td class='anchor-list-row-dfn'></td>");
             tr.append(td1);
             td1.html("<a>" + req + "</a>");
 
