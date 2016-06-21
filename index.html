@@ -49,8 +49,10 @@ otherLinks: [
             }
           ],
 edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
+preProcess: [rev_index],
       };
     </script>
+    <script src='reverse-index.js' class='remove'></script>
   </head>
   <body>
     <section id='abstract'>
@@ -141,33 +143,37 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
 
 <section>
   <h2>Manifests/Metadata</h2>
-  <p>As a reading system, I need a list of things to process.</p>
-  <p>As a reading system, I need to know if support a media type included in
-    the publication.</p>
-  <p>As a reading system, I need to know the order in which to display
-    material.</p>
-  <p>As a reading system, I need to know file size(s) because I have limited
-    memory</p>
-  <p>As a reading system, I need to know which files are required or essential
-    for the user to perceive the content.</p>
-  <p>As a reading system, I need to know enough about the publication efficiently
-    and without preprocessing.</p>
-  <p>As a reading system, I need to know the title and cover image to display
-    the publication on a shelf without downloading all it's content.</p>
-  <p>As a reading system, I need to know which file is the next one.</p>
-  <p>As a reading system, I need to know if I need additional processing
-    instructions, such as with MathML.</p>
-  <p>As a reading system, I need to know if I have the rights to put the resource
-    offline.</p>
-  <p>As a reading sytem, I need to know when all the files are delivered, and that
-    if a file is not in the manifest, I will not process it.</p>
-  <p>As a reading system, I need descriptions about the publication that travel
-    with the publication whether online or offline. For example: author(s), title,
-    size, rights and permissions, accessibility, multimedia details.</p>
-  <p>As a reading system, I want to know that the content is unaltered.</p>
-  <p>As a reading system, I want to know if the content is intentionally
-    updated.</p>
-  <p>As a reading system, I want to know the origin of the publication.</p>
+  <p>Reading systems have a variety of requirements around the ability to
+    validate the contents, determine the order, and handle any processing
+    instructions involved in the rendering of a PWP.</p>
+  <h3 id="examples=2">Example</h3>
+  <ul>
+  <li>Alice reads an art catalogue publication on line, which is typeset with a
+    particular type of font to increase the visual quality of the publication.
+    Alice wants to be able to enjoy the catalogue offline (eg, on a plane), so
+    she instructs her reader to make this possible. However, to do so, her
+    browser (reading system) should ensure that the special font has the right
+    licensing term to be installed on Alice's machine (as opposed to be just
+    displayed when rendered).</li>
+  </ul>
+  <p>Requirement: <a data-set-anchor>Manifest Requirement 1</a></p>
+
+  <h3 id="examples-3">Example</h3>
+  <ul>
+  <li><p>Dave wants to read a publication that consists of a several chapters,
+   and includes lots of illustrations. Dave also wants to be able to read that
+   content offline.</p>
+  <p>The publisher's production workflow is such that each chapter is
+    provided as a separate HTML file; each HTML file links to a number of
+    auxiliary files like CSS or data files, and the illustrations are also
+    provided through separate high resolution images. The HTML files may also
+    include links to other Web resources, which do not form an essential part
+    of the publication, though (e.g., a link to a Wikipedia page describing
+    the subject of the publication); Dave is fine if that resource is not
+    necessarily available while offline</p></li>
+  </ul>
+  <p>Requirement: <a data-set-anchor>Manifest Requirement 2</a></p>
+
 </section>
 
 </section>
@@ -442,6 +448,16 @@ edDraftURI:           "http://w3c.github.io/dpub-pwp-ucr/",
 </section>
 
 <section>
+  <h2>Updating a PWP</h2>
+  <p>As an archiving service provider, I would like to be able to harvest the
+    subset of a PWP's components that have been added or changed since the last
+    archived version so that I can ensure archival completeness and minimize
+    unnecessary storage costs, post-harvest processing, latency in
+    synchronizing published and archived PWP versions, and load on the PWP
+    host's servers.</p>
+</section>
+
+<section>
   <h2>Take-down Notices</h2>
   <p>An archival service needs to update an Archival Information Package (i.e.,
     a previously harvested PWP) because it or one of its components has been
@@ -677,6 +693,17 @@ Requirement(s)
     synchronized with text, Video synchronized with Text, sign language sync
     with text.</p>
 
+  <dt><dfn>Manifest Requirement 1</dfn></dt>
+    <dd>The information on the licensing terms of the publication resources
+      must be available to the reading system.</dd>
+    <p>Referenced in: <span data-ref-anchor>Manifest Requirement 1</span></p>
+
+  <dt><dfn>Manifest Requirement 2</dfn></dt>
+    <dd>The list of all _essential_ constituent resources must be available
+         to the reading system.</dd>
+    <dd>The reading system must have the information on the reading order of
+         the different chapters (including the starting point).</dd>
+    <p>Referenced in: <span data-ref-anchor>Manifest Requirement 2</span></p>
 
 </section>
   </body>
